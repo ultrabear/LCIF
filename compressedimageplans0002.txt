@@ -1,0 +1,54 @@
+LCIF-0002 : GOAL : help compress smaller images and make 2^128 repeat a possibility while making the metadata take up less space
+1. 64 bits of text defining the filetype and version, it would be L(ossless)C(ompressed)I(mage)F(ile)0002(the version(you only get 9999 versions))
+
+2. there would be 2/1 bytes, 16/8 bits to further compress the metacode (referred to as M)
+  the first 1 defines the slice pattern, i have vertial and horizontal, horizontal=0, vertical=1
+  the next 1 tells if there will be 256 values in the varstack, if this is 1 there would not be the 8 additional bits defining the amount of vars
+  the next 6 define the size of the resolution chunk, max of 64 in 6 bits so it defines as valXval for the res (ex if val is 10 the resolution chunk is 10for x + 10 for y, 20 bits), this adds support for up to 2^64x2^64
+  the next 8 define the amount of variables (not existant if bit M[1] == 1), a problem in 0001 was pictures with less than 256 colors had wasted varspace so this tells the amount of vars
+3. there would be 5 bytes that define X1-5 for the 10 instruction, these numbers tell the binlens of the recursive functions 5 number slots
+4. there would be X bits after the first 64+16 bits that get split into 2 X numbers as x and y of the image, there would be no definition needed, this means the color is defined as one big line and whenever it hits the end of the x it would reset, newline, and add one to y
+5. then X*32 bits that allocate 32 bits each for X variables (of len 32, RGBA) (if vars is 0 there are none)
+
+summary of metadata = 64 bit filetype and version, 16/8 bit metametadata (8 if M[1] == 1), 5 instruction 10 bytes, 2M[2:8] resolution, (32*M[8:16] | 256*32 (if M[1] == 1)) bit variablestack
+* = changed from 0001
+meta sample : 1(vertical)0(uses 0-255 vars)001111(resolution chunk size (15x15 bits))00110011(amount of vars used (51))[5 instruction 10 bytes][resolution bits (15x15)][varstack (51*32)]
+sample 2 : 1(vertical)1(256 vars)001111(resolution chunk size (15x15 bits))[5 instruction 10 bytes][resolution bits (15x15)][varstack (256*32)]
+
+instructions:
+
+  00 = would refer that a variable color is about to be made
+   \0 = defines 4 bit color (from variablestack, the first 16*24 bits would be the most common colors ever in the image)
+   \1 = defines 8 bit color (from variablestack)
+  
+* 01 = would refer that a color is about to be made
+   \00 = defines a blank (if A=0)
+   \01 = defines 8 bit monochrome color (for when r==g==b)
+   \10 = defines 24 bit RGB color
+   \11 = defines 32 bit RGBA color
+   
+* 10 = would define a recursive color function (for multiples of the same color (it wont define the color but instead rely on the next defined color as its input, so its just a number, an instruction 00 or 01 must be after this)) forgot to mention the number of bits is used to count how many bits to read for the number
+   \00 = defines as X1 
+   \01 = defines as X2 
+   \10 = defines as X3 
+   \11 = branch point
+     \0 = defines X4 
+     \1 = defines X5 
+
+  11 = represents end of colorstream, this will be at the end to tell the code to stop reading because there may be more random bits at the end to get to a byte boundary
+
+
+map of slice patterns
+0 (horizontal, LCIF-0001 default)
+   0 1 2  
+   3 4 5
+   6 7 8
+1 (vertical)
+   0 3 6
+   1 4 7
+   2 5 8
+
+keep in minds for the encoders: (this doesnt need to make sense to someone making a decoder)
+  use slice patterns to determine common color variables instead of just the raw counts of common colors
+  use direct filewriting and readning to lower memory footprint
+  use RRAW (repeat raw) that uses 20 bytes per color, 16 bytes for a 128bit count of the amount of times it repeats and 4 for the rgb value, this can save disk space when going from raw to LCIF

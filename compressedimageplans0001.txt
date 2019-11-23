@@ -1,0 +1,28 @@
+1. 64 bits of text defining the filetype and version, it would be L(ossless)C(ompressed)I(mage)F(ile)XXXX(the version(you only get 9999 versions))
+
+2. there would be 64 bits after the first 64 that get split into 2 32bit numbers as x and y of the image, there would be no definition needed, this means the color is defined as one big line and whenever it hits the end of the x it would reset, newline, and add one to y
+3. then 256*24 bits that allocate 24 bits each for 256 variables (of len 24)
+
+summary of metadata = 64 bit filtype and version, 64 bit resolution, 256*24 bit variablestack
+
+instructions:
+
+  00 = would refer that a variable color is about to be made
+   \0 = defines 4 bit color (from variablestack, the first 16*24 bits would be the most common colors ever in the image)
+   \1 = defines 8 bit color (from variablestack)
+  
+  01 = would refer that a color is about to be made
+   \00 = defines a blank
+   \01 = defines 8 bit monochrome color (for when r==g==b)
+   \10 = defines 12 bit color (this would be for if a color lands on 11 22 33 for example it would translate down to 1 2 3)
+   \11 = defines 24 bit color (this would be for any 256*256*256 color and will be most of the image)
+   
+  10 = would define a recursive color function (for multiples of the same color (it wont define the color but instead rely on the next defined color as its input, so its just a number))
+   \00 = defines a 8 bit number (followed by 8 bits)
+   \01 = defines a 16 bit number (followed by 16 bits)
+   \10 = defines a 32 bit number (followed by 32 bits)
+   \11 = defines greater than 32 bit
+     \0 = defines 64 bit (followed by 64 bits)
+     \1 = defines 128 bit (followed by 128 bits)
+
+  11 = represents end of colorstream, this will be at the end to tell the code to stop reading because there may be more random bits at the end to get to a multiple of 8 bits as to not break the thing.
