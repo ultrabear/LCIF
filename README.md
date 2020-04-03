@@ -4,9 +4,9 @@ welcome to the front page of the LCIF project, this is a file format i have deve
 
 # The Theory
 
-LCIF compression is a linear compression algorithm that uses 2 main compression methods, repeated color compression and common color variable compression.
-Common Color Variable Compression takes common colors in the image and sorts them into a list at the start as variables callable by 8 bits instead of 24 or 32 bits for RGB and RGBA pixels.
-Repeated Color Compression notices when a color is repeated more than one time and writes that color once and attaches a number to represent the amount of times to repeat it.
+LCIF compression is a linear compression algorithm that uses 2 main compression methods, repeated color compression and common color variable compression.  
+Common Color Variable Compression takes common colors in the image and sorts them into a list at the start as variables callable by 8 bits instead of 24 or 32 bits for RGB and RGBA pixels.  
+Repeated Color Compression notices when a color is repeated more than one time and writes that color once and attaches a number to represent the amount of times to repeat it.  
 
 # CHANGELOG
 
