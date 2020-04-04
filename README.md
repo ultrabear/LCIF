@@ -14,6 +14,7 @@ Repeated Color Compression notices when a color is repeated more than one time a
 - added V1.1.4, uses a better repeat binlen calculation function, also improved encoder ram usage
 - minor tweaks to changelog
 - added section "The Theory" to explain the idea behind LCIF compression
+- edited 0002 specification file to make it make more sense
 
 ### UPDATE 2020-04-02
 - added V1.1.3, moves limiter on PIL image size to maximum limits of LCIF ((2^64-1)x(2^64-1))
