@@ -10,6 +10,9 @@ Repeated Color Compression notices when a color is repeated more than one time a
 
 # CHANGELOG
 
+### UPDATE 2020-04-09
+- added V1.0.5 encoder, uses a faster binary decoder for RRAW data and improved ram usage on encoding
+
 ### UPDATE 2020-04-03
 - added V1.1.4, uses a better repeat binlen calculation function, also improved encoder ram usage
 - minor tweaks to changelog
