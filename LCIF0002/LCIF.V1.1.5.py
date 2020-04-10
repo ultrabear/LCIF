@@ -427,7 +427,6 @@ def LCIFdecode(file):
     print("loaded varstack\nDecoding to RAW")
     pointer = 0
     readingData = True
-    global GinputDataPos
     while readingData: # this thing just does all the instruction reading, instr = instruction btw
       if len(outputData)%5000 == 0:
         sys.stdout.write("\r"+statprint(GinputDataPos,LCIFlen))
