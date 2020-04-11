@@ -9,22 +9,23 @@ Common Color Variable Compression takes common colors in the image and sorts the
 Repeated Color Compression notices when a color is repeated more than one time and writes that color once and attaches a number to represent the amount of times to repeat it.  
 
 # Versions
-### 10X (0001) series
+
+### 10X (0001) Series
 - 100
   - the original version, completely ram based and uses CCVC variable compressing
-  - lost to the wind atm
 - 101
   - improvements were made to speed
 - 102
   - introduction of SPVC variable calculation method
   - introduction of RRAW intermediary format
+  - uses ramdisk, saves memory
 - 103
   - QOL improvements with information displays
 - 104
   - instead of going from png to raw to RRAW to LCIF, it now goes directly from png to RRAW, speeding up decoding
 - 105
   - introduced faster binary decoder for RRAW data
-### 11X (0002 w/ 0001 Decoder) series
+### 11X (0002 w/ 0001 Decoder) Series
 - 110
   - introduction of LCIF 0002 standard, can decode 0001 and 0002 and encodes 0002
 - 111
@@ -43,6 +44,7 @@ Repeated Color Compression notices when a color is repeated more than one time a
 
 ### UPDATE 2020-04-10
 - updated README.md
+- found V100 lying in the dustbin, its not not much
 
 ### UPDATE 2020-04-09
 - added V1.0.5 encoder, uses a faster binary decoder for RRAW data and improved ram usage on encoding
