@@ -13,43 +13,57 @@ LCIF-XXXX DE : RRAW2, decodes from lcif to RRAW2 file and then loads from genera
 
 
 LCIF-0003 : GOAL : take color differential to save space on gradient maps
+NOTES : this specification uses number offsetting of binary values, in simple terms when it encodes it takes X - Y = input and then on the decoder it takes input + Y = X, this is used to encode the numbers 2 and 3 as 0 and 1 in binary for the repeat counter, a +2 offset, to lower the amount of space it takes, because realistically you would not want a repeat counter to repeat 1 or 0 times, number offsetting is also used in the variable count meter with a +1 offset
+
 1. 64 bits of text defining the filetype and version, it would be L(ossless)C(ompressed)I(mage)F(ile)0003(the version(you only get 9999 versions))
 
-2. there would be 2/1 bytes, 16/8 bits to further compress the metacode (referred to as M)
+2. there would be a byte, 8 bits of metametadata:
+  2 bits go to defining the color mode, 00 is RGBA, 01 is RGB, 10 is VARiable, and 11 is MONO. (explained further) 
+  
+  
+3. there would be 2/1 bytes, 16/8 bits to further compress the metacode (referred to as M)
   the first 1 defines the slice pattern, i have vertial and horizontal, horizontal=0, vertical=1
-  the next 1 tells if there will be 256 values in the varstack, if this is 1 there would not be the 8 additional bits defining the amount of vars
+  the next 1 tells if there will be 256 values in the varstack, if this is 0 there would not be the 8 additional bits defining the amount of vars, so if it is 0 there are 0 vars and if it is 1 there are the 8 bits, offset by +1 to acheive a range of 1-256 in 8 bits
   the next 6 define the size of the resolution chunk, max of 64 in 6 bits so it defines as valXval for the res (ex if val is 10 the resolution chunk is 10for x + 10 for y, 20 bits), this adds support for up to 2^64x2^64
   the next 8 define the amount of variables (not existant if bit M[1] == 1), a problem in 0001 was pictures with less than 256 colors had wasted varspace so this tells the amount of vars
-3. there would be 5 bytes that define X1-5 for the 10 instruction, these numbers tell the binlens of the recursive functions 5 number slots
-4. there would be X bits after the first 64+16 bits that get split into 2 X numbers as x and y of the image, there would be no definition needed, this means the color is defined as one big line and whenever it hits the end of the x it would reset, newline, and add one to y
-5. then X*32 bits that allocate 32 bits each for X variables (of len 32, RGBA) (if vars is 0 there are none)
+4. there would be 4 bytes that define X1-5 for the 10 instruction, these numbers tell the binlens of the recursive functions 5 number slots (bitlens of each number: 5 6 7 7 7, makes 32 bits or 4 bytes)
+5. there would be X bits after the first 64+16 bits that get split into 2 X numbers as x and y of the image, there would be no definition needed, this means the color is defined as one big line and whenever it hits the end of the x it would reset, newline, and add one to y
+6. then X*32 bits that allocate 32 bits each for X variables (of len 32, RGBA) (if vars is 0 there are none)
 
 summary of metadata = 64 bit filetype and version, 16/8 bit metametadata (8 if M[1] == 1), 5 instruction 10 bytes, 2M[2:8] resolution, (32*M[8:16] | 256*32 (if M[1] == 1)) bit variablestack
 * = changed from 0002
-meta sample : 1(vertical)0(uses 0-255 vars)001111(resolution chunk size (15x15 bits))00110011(amount of vars used (51))[5 instruction 10 bytes][resolution bits (15x15)][varstack (51*32)]
-sample 2 : 1(vertical)1(256 vars)001111(resolution chunk size (15x15 bits))[5 instruction 10 bytes][resolution bits (15x15)][varstack (256*32)]
+//SAMPLES ARE FOR 0002
+//meta sample : 1(vertical)0(uses 0-255 vars)001111(resolution chunk size (15x15 bits))00110011(amount of vars used (51))[5 instruction 10 bytes][resolution bits (15x15)][varstack (51*32)]
+//sample 2 : 1(vertical)1(256 vars)001111(resolution chunk size (15x15 bits))[5 instruction 10 bytes][resolution bits (15x15)][varstack (256*32)]
 
-instructions:
+RGBA instructions:
 
-  00 = would refer that a variable color is about to be made
+  00 (instr 0) = would refer that a variable color is about to be made
    \0 = defines 4 bit color (from variablestack, the first 16*32 bits would be the most common colors ever in the image)
    \1 = defines 8 bit color (from variablestack)
   
-* 01 = would refer that a color is about to be made
+* 01 (instr 1) = would refer that a color is about to be made
 *  \00 = defines 8 bit monochrome color (for when r==g==b)
 *  \01 = defines 15 bit differential color, this takes the previous color and adds up to 0xf f f or takes up to 0xf f f from that color, 15 bits for 1 bit plus or minus R 4 bit R, 1 bit + or - G, 4 bit G, 1 bit +- B, 4 bit B
    \10 = defines 24 bit RGB color
    \11 = defines 32 bit RGBA color
    
-* 10 = would define a recursive color function (for multiples of the same color (it wont define the color but instead rely on the next defined color as its input, so its just a number, an instruction 00 or 01 must be after this)) forgot to mention the number of bits is used to count how many bits to read for the number
+RGB instructions:
+
+
+
+Instructions that remain the same regardless of color mode:
+
+* 10 (instr 2) = would define a recursive color function (for multiples of the same color (it wont define the color but instead rely on the next defined color as its input, so its just a number, an instruction 00 or 01 must be after this)) forgot to mention the number of bits is used to count how many bits to read for the number
 *  \0 = defines as X1 
 *  \1 = branch point (branch moved from 0002 to further compress low repeat counts)
 *   \00 = defines X2
 *   \01 = defines X3
 *   \10 = defines X4
 *   \11 = defines X5
+* SPECIAL NOTE: because the only 2 valid instructions after a repeat counter are 00 and 01 instead of the instruction being 2 bit it is only 1 bit, 00 being 0 and 01 being 1, this saves a bit for every repeat counter used.
 
-  11 = represents end of colorstream, this will be at the end to tell the code to stop reading because there may be more random bits at the end to get to a byte boundary
+  11 (instr 3) = represents end of colorstream, this will be at the end to tell the code to stop reading because there may be more random bits at the end to get to a byte boundary
 *  \0 = yes end colorstream
 *  \1 = prints next 8 bits to console as its byte value and continues reading after, if you want to make the decoder talk while decoding now you can
 

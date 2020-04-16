@@ -1,6 +1,6 @@
 # LCIF file format
 
-welcome to the front page of the LCIF project, this is a file format developed over 8 months (0001 and 0002) based on linear image compression
+welcome to the front page of the LCIF project (Lossless Compressed Image Format), this is a file format developed over 8 months (0001 and 0002) based on linear image compression
 
 # The Theory
 
@@ -41,6 +41,9 @@ Repeated Color Compression notices when a color is repeated more than one time a
   - introduced Bit By Bit (B3) decoder that stream decodes 0002, 0001 decoder not changed
 
 # CHANGELOG
+
+### UPDATE 2020-04-26
+- updated 0003 specification file, it is still nowhere near complete but now some groundwork has been laid down
 
 ### UPDATE 2020-04-10
 - updated README.md
