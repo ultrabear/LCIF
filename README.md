@@ -39,15 +39,25 @@ Repeated Color Compression notices when a color is repeated more than one time a
 - 115
   - introduced faster binary decoder for RRAW data
   - introduced Bit By Bit (B3) decoder that stream decodes 0002, 0001 decoder not changed
+- 116
+  - greatly increased speed of RRAW encoder
+  - added VerConfig with build information
+  - added -c, --config flag that prints VerConfig data
+  - greatly improved RAM usage of encoder
 
 # CHANGELOG
+
+### UPDATE 2020-06-16
+- added V116 encoder
+- added LCIFstat V100
+- added LCIF 0002 statistics decoder, based on B3:1.1.5
 
 ### UPDATE 2020-04-26
 - updated 0003 specification file, it is still nowhere near complete but now some groundwork has been laid down
 
 ### UPDATE 2020-04-10
 - updated README.md
-- found V100 lying in the dustbin, its not not much
+- found V100 lying in the dustbin, its not much
 
 ### UPDATE 2020-04-09
 - added V1.0.5 encoder, uses a faster binary decoder for RRAW data and improved ram usage on encoding
