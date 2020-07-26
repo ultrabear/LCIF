@@ -44,8 +44,22 @@ Repeated Color Compression notices when a color is repeated more than one time a
   - added VerConfig with build information
   - added -c, --config flag that prints VerConfig data
   - greatly improved RAM usage of encoder
+- 117
+  - Multithreading! 
+    - RRAW 0/1 is now done simultaneously for a slight speed increase on SSDs or underpowered CPUs
+    - LCIF encoding is now multithreaded
+  - LCIF encoding no longer makes "LCIF" file, it directly writes to finalout as it encodes, uses a new conversion layer "BinaryBytes"
+  - RRAW20 has been replaced with RRAW4V
+    - New standard allows for a variable RRAW data size, in most cases cutting RRAW filesize in half
+    - Noticable speed increase on reading and writing RRAW
+  - Program gives warning if using python version 3.7 or below, as it is much slower than 3.8
+  - More consistent CLI
+
 
 # CHANGELOG
+
+### UPDATE 2020-07-25
+- added V117 encoder
 
 ### UPDATE 2020-06-16
 - added V116 encoder
